@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
+import 'package:flutteranimado/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,6 +15,12 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     super.initState();
 
     _animationController = AnimationController(vsync: this, duration: Duration(seconds: 2));
+
+    _animationController.addStatusListener((status){
+      if (status == AnimationStatus.completed){
+        Navigator.of(context).push(MaterialPageRoute(builder: (builder) => HomeScreen()));
+      }
+    });
   }
 
 
@@ -60,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    timeDilation = 4;
+    timeDilation = 1;
 
     return Scaffold(
       body: Container(
@@ -112,11 +119,16 @@ class StaggerAnimation extends StatelessWidget {
   final AnimationController controller;
 
   final Animation<double> buttonSqueeze;
+  final Animation<double> buttomZoomOut;
 
   StaggerAnimation(this.controller): buttonSqueeze = Tween<double>(
     begin: 320,
     end: 60
-  ).animate(CurvedAnimation(parent: controller, curve: Interval(0, 0.150)));
+  ).animate(CurvedAnimation(parent: controller, curve: Interval(0, 0.150))),
+  buttomZoomOut = Tween<double>(
+    begin: 60,
+    end: 1000
+  ).animate(CurvedAnimation(parent: controller, curve: Interval(0.5, 1, curve: Curves.bounceOut)));
 
   Widget _buildInside(BuildContext context){
     if (buttonSqueeze.value > 75){
@@ -139,16 +151,28 @@ class StaggerAnimation extends StatelessWidget {
         onTap: (){
           controller.forward();
         },
-        child: Container(
-          width: buttonSqueeze.value,
-          height: 60,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: Color.fromRGBO(247, 64, 106, 1),
-            borderRadius: BorderRadius.all(Radius.circular(30))
+        child: Hero(
+          tag: 'fade',
+          child: buttomZoomOut.value <= 60 ?
+          Container(
+              width: buttonSqueeze.value,
+              height: 60,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: Color.fromRGBO(247, 64, 106, 1),
+                  borderRadius: BorderRadius.all(Radius.circular(30))
+              ),
+              child: _buildInside(context)
+          ):
+          Container(
+              width: buttomZoomOut.value,
+              height: buttomZoomOut.value,
+              decoration: BoxDecoration(
+                  color: Color.fromRGBO(247, 64, 106, 1),
+                  shape: buttomZoomOut.value <= 500 ? BoxShape.circle:BoxShape.rectangle
+              ),
           ),
-          child: _buildInside(context)
-        ),
+        )
       ),
     );
   }

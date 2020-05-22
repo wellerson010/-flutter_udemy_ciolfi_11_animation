@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutteranimado/screens/home_screen.dart';
 import 'package:flutteranimado/screens/login_screen.dart';
 
 void main() => runApp(MyApp());
